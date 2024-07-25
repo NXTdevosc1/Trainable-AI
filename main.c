@@ -93,7 +93,8 @@ int main()
     LxTrain("hello", "Hi, how are you");
     LxTrain("how is your day", "It's very good!");
     LxTrain("welcome", "You're welcome too");
-
+    LxTrain("salam", "Kiday Labas");
+    LxTrain("salamo alaykum", "Wa alaykumu salamo wa rahmatou lahi ta'ala wa barakatuh :)");
     // printf("Hello AI\n");
     for (;;)
     {
