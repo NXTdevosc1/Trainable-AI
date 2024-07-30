@@ -1,112 +1,64 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <Windows.h>
+#include <math.h>
+#include <time.h>
 
-char Buffer[0x1000] = {0};
-char *keys[0x200] = {0};
-void toLowercase(char *str)
+double Sigmoid(double Val)
 {
-    int i = 0;
-    while (str[i])
-    {
-        str[i] = tolower(str[i]);
-        i++;
-    }
-}
-void GenKeys()
-{
-    toLowercase(Buffer);
-    char *c = Buffer;
-    char *wrdstart = Buffer;
-    char **Key = keys;
-    while ((*c))
-    {
-        if ((*c) == ' ' || (*c == '\n'))
-        {
-            *c = 0;
-            *Key = wrdstart;
-            wrdstart = c + 1;
-            Key++;
-        }
-        c++;
-    }
-    *Key = NULL;
-}
-typedef struct _LEARNING LEARNING;
-typedef struct _LEARNING
-{
-    UINT64 Instruction; // 0 = answer, 1 = execute, 2 = Add, 3 = Multiply
-    UINT64 DataLength;
-    char *Match;
-    char *Data;
-    LEARNING *Child;
-    LEARNING *LastChild;
-} LEARNING;
-LEARNING Learnings[0x20] = {0};
-LEARNING *Learnt = Learnings;
-void LxTrain(char *Match, char *Data)
-{
-    Learnt->Match = Match;
-    Learnt->Data = Data;
-    Learnt++;
+    return 1 / (1 + exp(-Val));
 }
 
-void Think()
-{
-    LEARNING *en = Learnings;
-    float Farness = 1;
-    LEARNING *BestAnswer = NULL;
-    for (; en->Match; en++)
-    {
-        char *c = en->Match, *bf = Buffer;
-        double Len = (double)strlen(c);
-        double f = 0;
+#define RandVal() ((double)rand() / (double)RAND_MAX)
 
-        for (; (*c); c++)
-        {
-            if (*bf)
-            {
-                f += ((double)abs((*c) - (*bf)) / 100) * Len;
-                bf++;
-            }
-            else
-                f += 1 / Len;
-        }
-        printf("far %lf ||| %s  :  answer %s\n", f, en->Match, en->Data);
-        if (f < Farness)
-        {
-            BestAnswer = en;
-            Farness = f;
-        }
-    }
-    if (!BestAnswer)
-        printf("I do not understand what you are trying to say, can you please clarify?\n");
-    else
+// Training values
+BOOLEAN tInput0[] = {0, 0, 1};
+BOOLEAN tInput[] = {1, 0, 0};
+BOOLEAN tInput2[] = {0, 1, 1};
+BOOLEAN tInput3[] = {1, 0, 1};
+
+double Weights[3] = {0};
+double Outputs[] = {0, 1, 999}; // last unusable
+
+void Train(BOOLEAN *Inputs, BOOLEAN Val, UINT Iterations)
+{
+    double Out = Outputs[Val];
+
+    for (int i = 0; i < Iterations; i++)
     {
-        printf("Farness : %lf\n\n", Farness);
-        printf("%s\n", BestAnswer->Data);
+        double Result = 0;
+        for (int i = 0; i < 3; i++)
+            Result += Inputs[i] * Weights[i];
+
+        Result = Sigmoid(Result);
+        double Error = Result - Out;
+        printf("Result %lf Out %lf Error %lf\n", Result, Out, Error);
     }
 }
 
-int main()
+int main(int argc, char **argv)
 {
-    LxTrain("hello", "Hi, how are you");
-    LxTrain("how is your day", "It's very good!");
-    LxTrain("welcome", "You're welcome too");
-    LxTrain("salam", "Kiday Labas");
-    LxTrain("salamo alaykum", "Wa alaykumu salamo wa rahmatou lahi ta'ala wa barakatuh :)");
-    // printf("Hello AI\n");
-    for (;;)
+    srand(time(NULL));
+    printf("Machine Learning AI Startup\n");
+
+    for (int i = 0; i < 3; i++)
     {
-
-        printf("> ");
-
-        fgets(Buffer, 0xFFF, stdin);
-
-        GenKeys();
-        printf("You asked : %s\n", Buffer);
-
-        Think();
+        Weights[i] = RandVal();
+        Outputs[i] = Sigmoid(Outputs[i]);
+        printf("Weight%d %lf Out %lf\n", i, Weights[i], Outputs[i]);
     }
+
+    BOOLEAN Input[3] = {1, 1, 0};
+
+    Train(Input, 1, 10);
+
+    double NeuronOut = 0;
+
+    for (int i = 0; i < 3; i++)
+    {
+        NeuronOut += Input[i] * Weights[i];
+    }
+    printf("Neuron Out %lf Sigmoid %lf\n", NeuronOut, Sigmoid(NeuronOut));
+
     return 0;
 }
