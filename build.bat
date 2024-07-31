@@ -1,1 +1,1 @@
-cl main.c /Fe:ai.exe
+cl main.c /Fe:ai.exe /O2

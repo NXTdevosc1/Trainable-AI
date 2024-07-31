@@ -17,6 +17,8 @@ class NeuralNetwork():
         for i in range(iterations):
             outs = self.think(ins)
             error = touts - outs
+            print("TRAINING... \nINS\n", ins, "\nINS.T\n ", ins.T, "\nERR*SIGMOID\n", error * self.sigmoid_derivative(outs))
+            print("TOTAL:", np.dot(ins.T, error * self.sigmoid_derivative(outs)))
             self.synaptic_weights += np.dot(ins.T, error * self.sigmoid_derivative(outs))
 
 
@@ -34,7 +36,7 @@ if __name__ == '__main__':
 
     print("----- weights before training\n", nn.synaptic_weights)
     print("----- outs before training\n", nn.think(training_inputs))
-    nn.train(training_inputs, training_outputs, 100)
+    nn.train(training_inputs, training_outputs, 10000)
     print("----- weights after training\n", nn.synaptic_weights)
     print("----- outs after training\n", nn.think(training_inputs))
 
