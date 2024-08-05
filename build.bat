@@ -1,1 +1,1 @@
-cl main.c /Fe:ai.exe /O2
+cl main.cpp /Fe:ai.exe /O2 /EHsc
